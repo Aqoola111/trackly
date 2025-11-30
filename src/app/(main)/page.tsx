@@ -1,3 +1,4 @@
+import {Logo} from "@/components/logo";
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,10 +11,7 @@ export default function LandingPage() {
 			<header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
 				<div className="container mx-auto px-4 py-4 flex items-center justify-between">
 					<div className="flex items-center gap-2">
-						<div className="size-8 rounded-lg bg-primary flex items-center justify-center">
-							<CheckCircle2 className="size-5 text-primary-foreground" />
-						</div>
-						<span className="text-xl font-bold">Trackly</span>
+						<Logo/>
 					</div>
 					<nav className="hidden md:flex items-center gap-6">
 						<Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">
@@ -27,11 +25,8 @@ export default function LandingPage() {
 						</Link>
 					</nav>
 					<div className="flex items-center gap-3">
-						<Button variant="ghost" asChild>
-							<Link href="/dashboard">Sign In</Link>
-						</Button>
-						<Button asChild>
-							<Link href="/dashboard">Get Started</Link>
+						<Button variant={"ghost"} asChild>
+							<Link href="/auth">Get Started</Link>
 						</Button>
 					</div>
 				</div>
@@ -52,7 +47,7 @@ export default function LandingPage() {
 					</p>
 					<div className="flex flex-col sm:flex-row items-center justify-center gap-4">
 						<Button size="lg" className="text-lg px-8" asChild>
-							<Link href="/dashboard">Get Started Free</Link>
+							<Link href="/auth">Get Started Free</Link>
 						</Button>
 						<Button size="lg" variant="outline" className="text-lg px-8 bg-transparent" asChild>
 							<Link href="#features">Learn More</Link>

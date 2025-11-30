@@ -72,14 +72,53 @@ model Verification {
   @@map("verification")
 }
 
-model Habit {
-  id        String   @id @default(cuid())
-  title     String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum HabitColor {
+  RED
+  BLUE
+  GREEN
+  YELLOW
+  ORANGE
+  PURPLE
+  PINK
+  GRAY
+}
 
+enum HabitCategory {
+  HEALTH
+  FITNESS
+  WORK
+  STUDY
+  SLEEP
+}
+
+enum HabitFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum WeekDay {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+model Habit {
+  id          String            @id @default(cuid())
+  title       String
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  color       HabitColor        @default(GRAY)
+  category    HabitCategory?
+  frequency   HabitFrequency    @default(DAILY)
+  weekDays    WeekDay?
+  monthDay    Int?
   completions HabitCompletion[]
 }
 
