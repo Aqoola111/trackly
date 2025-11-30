@@ -198,7 +198,7 @@ export default function LandingPage() {
 						Join thousands of users who are building better habits and achieving their goals
 					</p>
 					<Button size="lg" variant="secondary" className="text-lg px-8" asChild>
-						<Link href="/dashboard">Start Tracking Today</Link>
+						<Link href="/habits">Start Tracking Today</Link>
 					</Button>
 				</div>
 			</section>

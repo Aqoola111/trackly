@@ -1,4 +1,4 @@
-import {HabitColor} from "@/lib/types";
+import {DayCell, HabitColor} from "@/lib/types";
 import {clsx, type ClassValue} from "clsx"
 import {twMerge} from "tailwind-merge"
 
@@ -46,3 +46,34 @@ export const HABIT_COLOR_STYLES: Record<
 		hover: "hover:bg-gray-200 hover:border-gray-400 hover:shadow-gray-300",
 	},
 };
+
+export const isSameDay = (a: Date, b: Date) =>
+	a.getFullYear() === b.getFullYear() &&
+	a.getMonth() === b.getMonth() &&
+	a.getDate() === b.getDate();
+
+
+export const generateDayCells = (date: Date) => {
+	
+	const year = date.getFullYear();
+	const month = date.getMonth();
+	const daysInMonth = new Date(year, month + 1, 0).getDate();
+	
+	
+	const dayCells: DayCell[] = Array.from({length: daysInMonth}, (_, i) => {
+		const day = i + 1;
+		const date = new Date(year, month, day);
+		
+		const weekday = date
+			.toLocaleDateString("en-US", {weekday: "short"})
+			.replace(".", "");
+		
+		return {
+			day,
+			date,
+			weekday,
+		};
+	});
+	
+	return dayCells
+}

@@ -1,3 +1,5 @@
+'use client';
+
 import {Button} from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,9 +12,11 @@ import {
 import {Form, FormControl, FormField, FormItem, FormLabel} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {addHabitFormSchema, AddHabitFormType} from "@/feautres/habits/schemas";
 import {HabitCategory, HabitColor, HabitFrequency, WeekDay} from "@/generated/prisma/enums";
 
 import {cn, HABIT_COLOR_STYLES} from "@/lib/utils";
+import {trpc} from "@/trpc/client";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useEffect} from "react";
 import {useForm} from "react-hook-form";
@@ -24,21 +28,11 @@ interface ModalProps {
 	onOpenChange: (open: boolean) => void;
 }
 
-export const addHabitFormSchema = z.object({
-	name: z.string().min(1, 'Name is required').max(100, 'Name must be at most 100 characters long'),
-	color: z.enum(HabitColor),
-	frequency: z.enum(HabitFrequency),
-	category: z.enum(HabitCategory).nullable(),
-	weekDay: z.enum(WeekDay).nullable(),
-	monthDay: z.number().min(1).max(31).nullable(),
-})
-
-type addHabitFormType = z.infer<typeof addHabitFormSchema>;
 
 const AddHabitModal = ({isOpen, onOpenChange}: ModalProps) => {
 	const colors = Object.values(HabitColor);
 	const frequencies = Object.values(HabitFrequency);
-	const form = useForm<addHabitFormType>({
+	const form = useForm<AddHabitFormType>({
 		resolver: zodResolver(addHabitFormSchema),
 		defaultValues: {
 			name: "",
@@ -50,6 +44,8 @@ const AddHabitModal = ({isOpen, onOpenChange}: ModalProps) => {
 		}
 	})
 	
+	const utils = trpc.useContext()
+	
 	useEffect(() => {
 		form.reset()
 	}, [isOpen])
@@ -59,14 +55,32 @@ const AddHabitModal = ({isOpen, onOpenChange}: ModalProps) => {
 	const color_value = form.watch('color')
 	const frequency_value = form.watch('frequency');
 	const weekDay_value = form.watch('weekDay')
+	const addHabitMutation = trpc.createHabit.useMutation()
+	
 	
 	useEffect(() => {
 		form.setValue('weekDay', null)
-		form.setValue('monthDay', null)
+		form.setValue('monthDay', 0)
 	}, [frequency_value]);
 	
-	const onSubmit = (data: addHabitFormType) => {
-		toast(JSON.stringify(data, null, 2))
+	const onSubmit = (values: AddHabitFormType) => {
+		addHabitMutation.mutate({
+			name: values.name,
+			color: values.color,
+			frequency: values.frequency,
+			category: values.category,
+			weekDay: values.frequency === HabitFrequency.WEEKLY ? values.weekDay : null,
+			monthDay: values.frequency === HabitFrequency.MONTHLY ? values.monthDay : 0,
+		}, {
+			onSuccess: () => {
+				toast.success('Habit added successfully');
+				onOpenChange(false);
+				utils.getUserHabits.invalidate()
+			},
+			onError: (error) => {
+				toast.error(`Error adding habit: ${error.message}`);
+			}
+		})
 	}
 	
 	return (
@@ -75,6 +89,7 @@ const AddHabitModal = ({isOpen, onOpenChange}: ModalProps) => {
 				<DialogHeader>
 					<DialogTitle>
 						Add new habit
+						{JSON.stringify(form.formState.errors, null, 2)}
 					</DialogTitle>
 					<DialogDescription>
 						Fill the form below to add a new habit to track.
@@ -167,13 +182,19 @@ const AddHabitModal = ({isOpen, onOpenChange}: ModalProps) => {
 										Select day of the month (1-31)
 									</FormLabel>
 									<FormControl>
-										<Input {...field} type='number' min={1} max={31}
-											   placeholder='Day of the month'/>
+										<Input
+											value={field.value}
+											onChange={(e) => field.onChange(Number(e.target.value))}
+											type="number"
+											min={0}
+											max={31}
+											placeholder="Day of the month"
+										/>
 									</FormControl>
 								</FormItem>
 							)}/>
 						)}
-						<Button>
+						<Button disabled={addHabitMutation.isPending}>
 							Add Habit
 						</Button>
 					</form>

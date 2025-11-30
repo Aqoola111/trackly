@@ -42,7 +42,7 @@ export const SignInCard = ({changeFlow}: SignInCardProps) => {
 			rememberMe: data.rememberMe
 		}, {
 			onSuccess: () => {
-				router.push('/')
+				router.push('/habits')
 			},
 			onError: (ctx) => {
 				toast.error(ctx.error.message);

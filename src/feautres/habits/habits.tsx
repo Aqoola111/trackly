@@ -1,7 +1,10 @@
 'use client'
+import {Button} from "@/components/ui/button";
 import AddHabitModal from "@/feautres/habits/add-habit-modal";
+import {HabitsWrapper} from "@/feautres/habits/habits-wrapper";
 import NoHabitsFound from "@/feautres/habits/no-habits-found";
 import {trpc} from "@/trpc/client";
+import {PlusIcon} from "lucide-react";
 import {useState} from "react";
 
 export const Habits = () => {
@@ -20,8 +23,13 @@ export const Habits = () => {
 		</>
 	}
 	return (
-		<div>
-			//Habits list + button to add habit modal
-		</div>
+		<>
+			<Button onClick={() => setIsOpen(true)} className='w-fit' variant='outline'>
+				Add Habit
+				<PlusIcon/>
+			</Button>
+			<AddHabitModal isOpen={isOpen} onOpenChange={setIsOpen}/>
+			<HabitsWrapper habits={habits.data}/>
+		</>
 	)
 };
