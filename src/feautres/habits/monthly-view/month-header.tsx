@@ -1,5 +1,5 @@
 import {Button} from "@/components/ui/button";
-import {AlignLeftIcon, ArrowLeft, ArrowRight} from "lucide-react";
+import {ArrowLeft, ArrowRight} from "lucide-react";
 
 interface MonthHeaderProps {
 	currentDate: Date,
@@ -10,16 +10,35 @@ interface MonthHeaderProps {
 
 export const MonthHeader = ({onPrevMonth, onNextMonth, currentDate, disableNext}: MonthHeaderProps) => {
 	return (
-		<div className='flex items-center gap-2'>
-			<Button variant='ghost' size='icon' onClick={onPrevMonth}>
-				<ArrowLeft/>
+		<div className="relative flex items-center w-full py-2">
+			
+			{/* Left arrow */}
+			<Button
+				variant="ghost"
+				size="icon"
+				onClick={onPrevMonth}
+				className="absolute left-0"
+			>
+				<ArrowLeft />
 			</Button>
-			<h1 className='text-2xl'>
-				{currentDate.toLocaleString('en-US', {month: 'long'})} {currentDate.getFullYear()}
+			
+			{/* Centered title */}
+			<h1 className="text-2xl text-center w-full">
+				{currentDate.toLocaleString("en-US", { month: "long" })}{" "}
+				{currentDate.getFullYear()}
 			</h1>
-			<Button variant='ghost' size='icon' disabled={disableNext} onClick={onNextMonth}>
-				<ArrowRight/>
+			
+			{/* Right arrow */}
+			<Button
+				variant="ghost"
+				size="icon"
+				disabled={disableNext}
+				onClick={onNextMonth}
+				className="absolute right-0"
+			>
+				<ArrowRight />
 			</Button>
+		
 		</div>
-	)
+	);
 };

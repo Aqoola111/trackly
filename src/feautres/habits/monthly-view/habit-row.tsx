@@ -1,6 +1,7 @@
 import {GetUserHabitsResult} from "@/feautres/habits/habits-wrapper";
 import {HabitDayCell} from "@/feautres/habits/monthly-view/habit-day-cell";
 import {DayCell} from "@/lib/types";
+import {getUtcMidnightIso} from "@/lib/utils";
 import {trpc} from "@/trpc/client";
 import {isSameDay} from "date-fns";
 import {useState} from "react";
@@ -22,7 +23,9 @@ export const HabitRow = ({habit, dayCells}: HabitRowProps) => {
 	})
 	const useCompletionMutation = trpc.toggleHabitCompletion.useMutation({
 		onSuccess: () => {
-			utils.getHabitCompletionsById.invalidate()
+			utils.getHabitCompletionsById.invalidate({
+				habitId: habit.id
+			})
 		},
 		onError: (error) => {
 			toast.error(error.message || 'An error occurred while toggling habit completion.')
@@ -33,7 +36,7 @@ export const HabitRow = ({habit, dayCells}: HabitRowProps) => {
 		setLastDate(date)
 		useCompletionMutation.mutate({
 			habitId: habitId,
-			date: date.toISOString()
+			date: getUtcMidnightIso(date)
 		})
 	}
 	

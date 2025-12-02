@@ -1,5 +1,6 @@
 import {DayCell, HabitColor} from "@/lib/types";
 import {clsx, type ClassValue} from "clsx"
+import {startOfDay} from "date-fns";
 import {twMerge} from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -77,3 +78,23 @@ export const generateDayCells = (date: Date) => {
 	
 	return dayCells
 }
+
+export const getUtcMidnightIso = (d: Date) => {
+	const localMid = startOfDay(d); // уже импортирован
+	const utcMid = new Date(Date.UTC(localMid.getFullYear(), localMid.getMonth(), localMid.getDate()));
+	return utcMid.toISOString();
+};
+
+export const parseDateToUtcMidnight = (input: string | Date): Date => {
+	if (typeof input === "string") {
+		const m = input.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+		if (m) {
+			return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+		}
+		// fallback: parse ISO-ish string then take UTC Y/M/D
+		const tmp = new Date(input);
+		return new Date(Date.UTC(tmp.getUTCFullYear(), tmp.getUTCMonth(), tmp.getUTCDate()));
+	}
+	const d = input;
+	return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+};

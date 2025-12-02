@@ -42,15 +42,15 @@ export const HabitsMonthlyView = ({habits}: HabitsMonthlyViewProps) => {
 				onNextMonth={handleNextMonth}
 			/>
 			
-			{/* HORIZONTAL SCROLL ONLY FOR GRID */}
+			
 			<div className="flex w-full flex-1">
 				{/* LEFT FIXED COLUMN */}
-				<div className="flex flex-col gap-2 w-[120px] sm:w-[150px] lg:w-[180px] shrink-0">
+				<div className="flex flex-col gap-2 w-[150px] sm:w-[190px] lg:w-[180px] shrink-0">
 					<div className="h-[60px]"/>
 					{habits.map(h => (
 						<div key={h.id} className={cn("h-12 flex items-center font-medium",)}>
-							{/* Desktop full title */}
-							<span className={cn("hidden md:block whitespace-nowrap")}>
+							
+							<span className={cn(" whitespace-nowrap")}>
 			{h.title}
 		</span>
 						
@@ -58,21 +58,21 @@ export const HabitsMonthlyView = ({habits}: HabitsMonthlyViewProps) => {
 					))}
 				</div>
 				
-				{/* RIGHT SCROLLABLE PART */}
+				
 				<div className="overflow-x-auto w-full">
 					<div
 						className="grid gap-2 min-w-max"
 						style={{gridTemplateColumns: `repeat(${dayCells.length}, 48px)`}}
 					>
-						{/* day headers */}
+						
 						{dayCells.map(cell => (
 							<DayRowCell key={cell.day} cell={cell}/>
 						))}
 						
-						{/* gap */}
+						
 						<div className="h-4 col-span-full"></div>
 						
-						{/* rows */}
+						
 						{habits.map(habit => (
 							<HabitRow key={habit.id} habit={habit} dayCells={dayCells}/>
 						))}

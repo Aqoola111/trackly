@@ -1,6 +1,7 @@
+// typescript
 import {addHabitFormSchema} from "@/feautres/habits/schemas";
 import prisma from "@/lib/prisma";
-import {startOfDay} from "date-fns";
+import {parseDateToUtcMidnight} from "@/lib/utils";
 import {z} from 'zod';
 import {baseProcedure, createTRPCRouter, protectedProcedure} from '../init';
 
@@ -49,6 +50,61 @@ export const appRouter = createTRPCRouter({
 		})
 		return completions
 	}),
+	getHabitsForDate: protectedProcedure
+		.input(z.object({date: z.string()}))
+		.query(async ({ctx, input}) => {
+			const userId = ctx.auth.user.id;
+			if (!userId) throw new Error("Unauthorized");
+			
+			const date = parseDateToUtcMidnight(input.date); // UTC-полночь
+			const nextDay = new Date(date.getTime() + 24 * 60 * 60 * 1000); // следующая UTC-полночь
+			
+			const weekDayLong = date
+				.toLocaleString("en-US", {weekday: "long", timeZone: "UTC"})
+				.toUpperCase(); // e.g. "MONDAY"
+			const dayOfMonth = date.getUTCDate();
+			
+			
+			const habits = await prisma.habit.findMany({
+				where: {
+					userId,
+				},
+				include: {
+					completions: {
+						where: {
+							date: {
+								gte: date,
+								lt: nextDay,
+							},
+						},
+					},
+				},
+			});
+			const result = habits.filter(h => h.completions.length > 0);
+			return result
+			
+		}),
+	getCompletionsByDate: protectedProcedure
+		.input(z.object(
+			{
+				date: z.string(),
+			}
+		))
+		.query(async ({ctx, input}) => {
+			const userId = ctx.auth.user.id;
+			if (!userId) throw new Error("Unauthorized");
+			
+			const date = parseDateToUtcMidnight(input.date);
+			
+			const completions = await prisma.habitCompletion.findMany({
+				where: {
+					userId,
+					date: {equals: date},
+				},
+			});
+			
+			return completions;
+		}),
 	toggleHabitCompletion: protectedProcedure
 		.input(z.object(
 			{
@@ -61,8 +117,8 @@ export const appRouter = createTRPCRouter({
 			if (!userId) throw new Error("Unauthorized");
 			
 			const {habitId, date} = input;
-			const completionDate = new Date(date);
-			const day = startOfDay(new Date(date));
+			const completionDate = parseDateToUtcMidnight(date);
+			
 			
 			const habit = await prisma.habit.findFirst({
 				where: {
@@ -75,20 +131,24 @@ export const appRouter = createTRPCRouter({
 				throw new Error("Habit not found");
 			}
 			
-			const weekDay = completionDate.toLocaleString("en-US", {weekday: "long"}).toUpperCase();
-			if (habit.frequency === "WEEKLY" && habit.weekDays && !habit.weekDays.includes(weekDay)) {
-				throw new Error(`Cannot complete habit on ${weekDay}`);
+			const weekDay = completionDate.toLocaleString("en-US", {weekday: "long", timeZone: "UTC"}).toUpperCase();
+			if (habit.weekDays) {
+				if (!weekDay.includes(habit.weekDays)) {
+					throw new Error(`Cannot complete habit on ${weekDay}`);
+				}
 			}
 			
-			if (habit.frequency === "MONTHLY" && habit.monthDay && completionDate.getDate() !== habit.monthDay) {
-				throw new Error(`Cannot complete habit on day ${completionDate.getDate()}`);
+			
+			// использовать UTC-день для сравнения
+			if (habit.frequency === "MONTHLY" && habit.monthDay && completionDate.getUTCDate() !== habit.monthDay) {
+				throw new Error(`Cannot complete habit on day ${completionDate.getUTCDate()}`);
 			}
 			
 			const existing = await prisma.habitCompletion.findFirst({
 				where: {
 					habitId: habitId,
 					userId,
-					date: day
+					date: {equals: completionDate}
 				}
 			})
 			
@@ -157,12 +217,10 @@ export const appRouter = createTRPCRouter({
 			const DAYS_BACK = 45
 			
 			for (let i = -DAYS_BACK; i < DAYS_TO_GENERATE; i++) {
-				const d = startOfDay(
-					new Date(now.getFullYear(), now.getMonth(), now.getDate() + i)
-				);
+				const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + i));
 				
 				const weekdayShort = d
-					.toLocaleString("en-US", {weekday: "short"})
+					.toLocaleString("en-US", {weekday: "short", timeZone: "UTC"})
 					.toUpperCase(); // e.g., "MON", "TUE"
 				
 				// DAILY — every day for 30 days
@@ -189,9 +247,9 @@ export const appRouter = createTRPCRouter({
 					}
 				}
 				
-				// MONTHLY — only one day
+				// MONTHLY — only one day (используем UTC-день)
 				if (frequency === "MONTHLY" && monthDay > 0) {
-					if (d.getDate() === monthDay) {
+					if (d.getUTCDate() === monthDay) {
 						completionsToCreate.push({
 							habitId: habit.id,
 							userId,

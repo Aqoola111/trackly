@@ -13,6 +13,7 @@ import {Form, FormControl, FormField, FormItem, FormLabel} from "@/components/ui
 import {Input} from "@/components/ui/input";
 import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {addHabitFormSchema, AddHabitFormType} from "@/feautres/habits/schemas";
+import {useAddHabitModal} from "@/feautres/habits/store/use-add-habit-modal";
 import {HabitCategory, HabitColor, HabitFrequency, WeekDay} from "@/generated/prisma/enums";
 
 import {cn, HABIT_COLOR_STYLES} from "@/lib/utils";
@@ -23,13 +24,9 @@ import {useForm} from "react-hook-form";
 import {toast} from "sonner";
 import {z} from "zod";
 
-interface ModalProps {
-	isOpen: boolean;
-	onOpenChange: (open: boolean) => void;
-}
 
-
-const AddHabitModal = ({isOpen, onOpenChange}: ModalProps) => {
+const AddHabitModal = () => {
+	const {isOpen, close} = useAddHabitModal()
 	const colors = Object.values(HabitColor);
 	const frequencies = Object.values(HabitFrequency);
 	const form = useForm<AddHabitFormType>({
@@ -74,7 +71,7 @@ const AddHabitModal = ({isOpen, onOpenChange}: ModalProps) => {
 		}, {
 			onSuccess: () => {
 				toast.success('Habit added successfully');
-				onOpenChange(false);
+				close();
 				utils.getUserHabits.invalidate()
 			},
 			onError: (error) => {
@@ -84,7 +81,7 @@ const AddHabitModal = ({isOpen, onOpenChange}: ModalProps) => {
 	}
 	
 	return (
-		<Dialog open={isOpen} onOpenChange={onOpenChange}>
+		<Dialog open={isOpen} onOpenChange={close}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>

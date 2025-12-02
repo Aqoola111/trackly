@@ -1,20 +1,24 @@
 'use client'
 import {Button} from "@/components/ui/button";
-import {HabitsDailyView} from "@/feautres/habits/habits-daily-view";
+import {HabitsDailyView} from "@/feautres/habits/daily-view/habits-daily-view";
 import {HabitsMonthlyView} from "@/feautres/habits/monthly-view/habits-monthly-view";
+import NoHabitsFound from "@/feautres/habits/no-habits-found";
 import {cn} from "@/lib/utils";
 import {inferRouterOutputs} from "@trpc/server";
 import {AppRouter} from "@/trpc/routers/_app";
 import {useState} from "react";
 
 export type GetUserHabitsResult = inferRouterOutputs<AppRouter>["getUserHabits"];
+export type GetHabitsForDateResult = inferRouterOutputs<AppRouter>["getHabitsForDate"];
 
 interface HabitsWrapperProps {
-	habits: GetUserHabitsResult;
+	habits: GetUserHabitsResult | undefined;
+	habitsByDate: GetHabitsForDateResult | undefined;
 }
 
-export const HabitsWrapper = ({habits}: HabitsWrapperProps) => {
-	const [view, setView] = useState<'DAILY' | "MONTHLY">('MONTHLY');
+export const HabitsWrapper = ({habits, habitsByDate}: HabitsWrapperProps) => {
+	const [view, setView] = useState<'DAILY' | "MONTHLY">('DAILY');
+	
 	return (
 		<div className='flex-1 flex flex-col gap-4'>
 			<div className="inline-flex rounded-2xl bg-muted p-1 w-fit">
@@ -43,9 +47,23 @@ export const HabitsWrapper = ({habits}: HabitsWrapperProps) => {
 					Monthly
 				</button>
 			</div>
-			{
-				view === 'DAILY' ? <HabitsDailyView/> : <HabitsMonthlyView habits={habits}/>
-			}
+			
+			{view === "DAILY" && (habitsByDate === undefined || habitsByDate.length === 0) && (
+				<NoHabitsFound text={'No habits found for today'}/>
+			)}
+			
+			
+			{view === "DAILY" && habitsByDate !== undefined && habitsByDate.length > 0 && (
+				<HabitsDailyView habits={habitsByDate}/>
+			)}
+			
+			{view === "MONTHLY" && (habits === undefined || habits.length === 0) && (
+				<NoHabitsFound/>
+			)}
+			
+			{view === "MONTHLY" && habits !== undefined && habits.length > 0 && (
+				<HabitsMonthlyView habits={habits}/>
+			)}
 		</div>
 	)
 };
