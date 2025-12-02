@@ -1,7 +1,9 @@
 import {Habits} from "@/feautres/habits/habits";
 import {getUtcMidnightIso} from "@/lib/utils";
 import {HydrateClient, trpc} from "@/trpc/sever";
-import {startOfDay} from "date-fns";
+
+export const dynamic = "force-dynamic"
+
 
 const Page = () => {
 	void trpc.getUserHabits.prefetch()
