@@ -1,5 +1,4 @@
 'use client'
-import {useIsMobile} from "@/hooks/use-mobile";
 import Image from "next/image";
 
 interface logoProps {
@@ -7,7 +6,6 @@ interface logoProps {
 }
 
 export const Logo = ({onlyIcon = false}: logoProps) => {
-	
 	return (
 		<div className='flex items-center gap-2'>
 			<Image src={'/target.svg'} alt={'logo'} height={30} width={30}/>

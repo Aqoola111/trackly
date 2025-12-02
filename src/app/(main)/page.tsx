@@ -1,4 +1,4 @@
-import {Logo} from "@/components/logo";
+import {Logo} from "@/components/Logo";
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"

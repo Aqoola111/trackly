@@ -1,6 +1,6 @@
 'use client';
 
-import {Logo} from "@/components/logo";
+import {Logo} from "@/components/Logo";
 import {SignInCard} from "@/feautres/auth/sign-in-card";
 import {SignUpCard} from "@/feautres/auth/sign-up-card";
 import {useState} from "react";
