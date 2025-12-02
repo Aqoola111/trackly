@@ -9,7 +9,7 @@ interface LayoutProps {
 	children?: React.ReactNode;
 }
 
-const Layout = async ({children}: LayoutProps) => {
+const Layout = ({children}: LayoutProps) => {
 	const path = usePathname()
 	
 	return (
