@@ -1,17 +1,23 @@
 'use client'
 import {Logo} from "@/components/Logo";
 import {Button} from "@/components/ui/button";
+import {auth} from "@/lib/auth";
 import {cn} from "@/lib/utils";
+import {headers} from "next/headers";
 import Link from "next/link";
-import {usePathname} from "next/navigation";
+import {redirect, usePathname} from "next/navigation";
 
 interface LayoutProps {
 	children?: React.ReactNode;
 }
 
-const Layout = ({children}: LayoutProps) => {
+const Layout = async ({children}: LayoutProps) => {
 	const path = usePathname()
-	console.log(path)
+	const session = await auth.api.getSession({
+		headers: await headers()
+	});
+	
+	if (!session) redirect("/auth");
 	return (
 		<div className='min-h-screen flex flex-col gap-2'>
 			<div className='h-16 border-b px-6 py-4'>
