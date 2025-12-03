@@ -35,12 +35,12 @@ export const DayHeader = ({
 	
 	
 	return (
-		<div className="relative flex items-center w-full border py-15 md:py-10 rounded-xl">
+		<div className="relative flex items-center w-full border py-15 rounded-xl">
 			<Button
-				variant="ghost"
+				variant="outline"
 				size="icon"
 				onClick={handlePrevDay}
-				className="absolute left-0"
+				className="absolute left-4"
 			>
 				<ArrowLeft/>
 			</Button>
@@ -49,17 +49,19 @@ export const DayHeader = ({
 				<h1 className="text-2xl mx-auto text-center">
 					{formatedDate}
 				</h1>
-				<h1 className='text-center text-muted-foreground'>
-					{completedHabits} / {totalHabits} habits completed
-				</h1>
+				{completedHabits !== undefined && totalHabits !== undefined && (
+					<h1 className='text-center text-muted-foreground'>
+						{completedHabits} / {totalHabits} habits completed
+					</h1>)}
+			
 			</div>
 			
 			<Button
-				variant="ghost"
+				variant="outline"
 				size="icon"
 				disabled={disableNext}
 				onClick={handleNextDay}
-				className="absolute right-0"
+				className="absolute right-4"
 			>
 				<ArrowRight/>
 			</Button>

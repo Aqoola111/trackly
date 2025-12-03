@@ -1,4 +1,3 @@
-
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
@@ -45,7 +44,7 @@ export const SignUpCard = ({changeFlow}: SignUpCardProps) => {
 			name: data.name
 		}, {
 			onSuccess: () => {
-				router.push('/dashboard')
+				router.push('/habits')
 			},
 			onError: (ctx) => {
 				toast.error(ctx.error.message);

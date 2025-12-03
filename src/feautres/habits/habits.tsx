@@ -19,17 +19,17 @@ export const Habits = () => {
 	const {open} = useAddHabitModal()
 	
 	return (
-		<div className='flex flex-col gap-2 flex-1'>
+		<div className='flex flex-col gap-4 flex-1'>
 			<div className='w-full flex items-center justify-between'>
 				<div className='flex flex-col gap-2'>
 					<h1 className='text-xl md:text-2xl lg:text-3xl font-bold'>
 						Your habits
 					</h1>
-					<p className='text-muted-foreground'>
+					<p className='text-muted-foreground hidden md:block'>
 						Track your daily progress and build consistency
 					</p>
 				</div>
-				<Button onClick={open} variant='outline'>
+				<Button  onClick={open} variant='ghost'>
 					Add Habit
 					<PlusIcon/>
 				</Button>

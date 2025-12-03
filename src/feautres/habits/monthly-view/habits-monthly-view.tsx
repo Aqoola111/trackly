@@ -4,7 +4,8 @@ import {HabitRow} from "@/feautres/habits/monthly-view/habit-row";
 import {MonthHeader} from "@/feautres/habits/monthly-view/month-header";
 import {DayCell} from "@/lib/types";
 import {cn, generateDayCells, HABIT_COLOR_STYLES} from "@/lib/utils";
-import {Fragment, useEffect, useState} from "react";
+import {Fragment, useCallback, useEffect, useRef, useState} from "react";
+import {toast} from "sonner";
 
 interface HabitsMonthlyViewProps {
 	habits: GetUserHabitsResult
@@ -16,6 +17,40 @@ export const CELL_SIZE = "w-12 h-12";
 export const HabitsMonthlyView = ({habits}: HabitsMonthlyViewProps) => {
 	const [date, setDate] = useState<Date>(new Date());
 	const [dayCells, setDayCells] = useState<DayCell[]>(generateDayCells(date));
+	const scrollRef = useRef<HTMLDivElement>(null)
+	const [scrolled, setScrolled] = useState(false)
+	const [scrolledToEnd, setScrolledToEnd] = useState(false)
+	
+	const handleScroll = useCallback(() => {
+		if (scrollRef.current) {
+			const {scrollLeft, clientWidth, scrollWidth} = scrollRef.current
+			
+			if (scrollLeft > 5) {
+				setScrolled(true)
+			} else {
+				setScrolled(false)
+			}
+			
+			if (scrollLeft + clientWidth >= scrollWidth) {
+				setScrolledToEnd(true)
+			} else {
+				setScrolledToEnd(false)
+			}
+		}
+	}, [])
+	
+	useEffect(() => {
+		const scrollElement = scrollRef.current
+		
+		if (scrollElement) {
+			scrollElement.addEventListener('scroll', handleScroll)
+		}
+		return () => {
+			if (scrollElement) {
+				scrollElement.removeEventListener('scroll', handleScroll)
+			}
+		}
+	}, [handleScroll]);
 	
 	useEffect(() => {
 		const newDayCells = generateDayCells(date);
@@ -49,17 +84,12 @@ export const HabitsMonthlyView = ({habits}: HabitsMonthlyViewProps) => {
 					<div className="h-[60px]"/>
 					{habits.map(h => (
 						<div key={h.id} className={cn("h-12 flex items-center font-medium",)}>
-							
-							<span className={cn(" whitespace-nowrap")}>
-			{h.title}
-		</span>
-						
+							<span className={cn(" whitespace-nowrap")}>{h.title}</span>
 						</div>
 					))}
 				</div>
-				
-				
-				<div className="overflow-x-auto w-full">
+				<div ref={scrollRef}
+					 className={cn("overflow-x-auto w-full transition-all duration-200", !scrolledToEnd && 'mask-r-from-99%', scrolled && 'mask-l-from-98%')}>
 					<div
 						className="grid gap-2 min-w-max"
 						style={{gridTemplateColumns: `repeat(${dayCells.length}, 48px)`}}
@@ -69,9 +99,7 @@ export const HabitsMonthlyView = ({habits}: HabitsMonthlyViewProps) => {
 							<DayRowCell key={cell.day} cell={cell}/>
 						))}
 						
-						
 						<div className="h-4 col-span-full"></div>
-						
 						
 						{habits.map(habit => (
 							<HabitRow key={habit.id} habit={habit} dayCells={dayCells}/>

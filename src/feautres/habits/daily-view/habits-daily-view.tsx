@@ -6,7 +6,6 @@ import {getUtcMidnightIso} from "@/lib/utils";
 import {trpc} from "@/trpc/client";
 import {addDays, startOfDay} from "date-fns";
 import {useEffect, useState} from "react";
-import {toast} from "sonner";
 
 
 interface HabitsDailyViewProps {
@@ -18,7 +17,8 @@ export const HabitsDailyView = ({habits}: HabitsDailyViewProps) => {
 	const utils = trpc.useUtils()
 	const [date, setDate] = useState<Date>(startOfDay(new Date()));
 	const [habitsForDate, setHabits] = useState<GetHabitsForDateResult | undefined>(habits);
-	const [completedHabits, setCompletedHabits] = useState(0)
+	const [completedHabits, setCompletedHabits] = useState<undefined | number>(undefined)
+	const [habitsCount, setHabitsCount] = useState<undefined | number>(undefined)
 	
 	const {data} = trpc.getHabitsForDate.useQuery(
 		{
@@ -28,8 +28,11 @@ export const HabitsDailyView = ({habits}: HabitsDailyViewProps) => {
 	
 	useEffect(() => {
 		setHabits(undefined)
+		setCompletedHabits(undefined)
+		setHabitsCount(undefined)
 		if (data) {
 			setHabits(data)
+			setHabitsCount(data.length)
 			let counter = 0
 			data.map(h => {
 				if (h.completions?.[0]?.done) {
@@ -65,7 +68,8 @@ export const HabitsDailyView = ({habits}: HabitsDailyViewProps) => {
 	};
 	return (
 		<div className='flex-1 flex-col flex gap-2 p-4'>
-			<DayHeader completedHabits={completedHabits} totalHabits={habitsForDate?.length}
+			<DayHeader completedHabits={completedHabits}
+					   totalHabits={habitsCount}
 					   handleNextDay={handleNextDay} handlePrevDay={handlePrevDay} currentDate={date}/>
 			{
 				!habitsForDate ? (
